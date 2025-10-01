@@ -153,6 +153,25 @@
                         <p class="text-gray-600 mb-4">بالضغط على هذا الزر سيتم حذف جميع الطلاب المسجلين في قاعدة البيانات.</p>
                         <button type="submit" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700">حذف جميع الطلاب</button>
                     </form>
+                    <script>
+                    // Password-protect the dangerous form
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const dropForm = document.querySelector('form[action="{{ route('dashboard.drop') }}"]');
+                        if (dropForm) {
+                            dropForm.onsubmit = function(e) {
+                                const confirmed = confirm('تحذير! سيتم حذف جميع بيانات الطلاب بشكل نهائي. هل أنت متأكد؟');
+                                if (!confirmed) return false;
+                                const code = prompt('يرجى إدخال رمز الحماية لحذف جميع الطلاب:');
+                                if (code !== 'ch34056') {
+                                    alert('رمز الحماية غير صحيح. لم يتم تنفيذ العملية.');
+                                    return false;
+                                }
+                                return true;
+                            };
+                        }
+                    });
+                    </script
+                    </form>
                 </div>
             </div>
         </div>
