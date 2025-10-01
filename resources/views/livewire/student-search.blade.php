@@ -25,12 +25,16 @@
                         <td class="w-1/3 text-right py-3 px-4">{{ $student->name }}</td>
                         <td class="w-1/3 text-right py-3 px-4">{{ $student->national_id }}</td>
                         <td class="text-right py-3 px-4">
-                            <select wire:change="updatePlace({{ $student->id }}, $event.target.value)" class="block w-full rounded-md border-gray-300 shadow-sm text-sm">
-                                <option value="none" @if(!$student->place) selected @endif>-- بدون تسكين --</option>
-                                @foreach($halls as $hall)
-                                    <option value="{{ $hall->name }}" @if($student->place == $hall->name) selected @endif>{{ $hall->name }}</option>
-                                @endforeach
-                            </select>
+                            @can('manage-dashboard')
+                                <select wire:change="updatePlace({{ $student->id }}, $event.target.value)" class="block w-full rounded-md border-gray-300 shadow-sm text-sm">
+                                    <option value="none" @if(!$student->place) selected @endif>-- بدون تسكين --</option>
+                                    @foreach($halls as $hall)
+                                        <option value="{{ $hall->name }}" @if($student->place == $hall->name) selected @endif>{{ $hall->name }}</option>
+                                    @endforeach
+                                </select>
+                            @else
+                                {{ $student->place ?? '-- بدون تسكين --' }}
+                            @endcan
                         </td>
                     </tr>
                 @endforeach

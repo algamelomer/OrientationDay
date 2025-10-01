@@ -14,14 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Admin User
-        User::firstOrCreate(
-            ['email' => 'admin@it.com'],
-            [
-                'name' => 'Admin',
-                'password' => bcrypt('it123456789'),
-            ]
-        );
+        $this->call(UserSeeder::class);
 
         // Seed Default Settings
         Setting::updateOrCreate(

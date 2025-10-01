@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+@if(Auth::user() && method_exists(Auth::user(), 'roles'))
+    <div class="mb-6 p-4 bg-indigo-50 border-l-4 border-indigo-400 rounded shadow text-indigo-900 container mx-auto">
+        <strong>الصلاحيات:</strong>
+        <ul class="list-disc list-inside mt-2">
+            @foreach(Auth::user()->roles as $role)
+                <li>{{ $role->name }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 <div class="bg-gray-100 min-h-screen py-4">
     <header class="bg-white shadow-md">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -74,6 +84,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Main Content Column -->
             <div class="lg:col-span-2 space-y-8">
+                @can('manage-dashboard')
                 <!-- Hall Management -->
                 <div class="bg-white rounded-lg shadow-xl p-6">
                     <h2 class="text-2xl font-semibold mb-4 text-gray-700 border-b pb-3">إدارة القاعات</h2>
@@ -109,6 +120,7 @@
                         </div>
                     </form>
                 </div>
+                @endcan
 
                 <!-- Student Search -->
                 <div class="bg-white rounded-lg shadow-xl p-6">
@@ -117,6 +129,7 @@
             </div>
 
             <!-- Settings & Import Column -->
+            @can('manage-dashboard')
             <div class="lg:col-span-1 space-y-8">
                 <!-- Settings Card -->
                 <div class="bg-white rounded-lg shadow-xl p-6">
@@ -174,7 +187,7 @@
                     </form>
                 </div>
             </div>
-        </div>
+            @endcan
     </main>
 </div>
 @endsection

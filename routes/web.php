@@ -23,15 +23,15 @@ Auth::routes(['register' => false]); // Disable registration route
 // --- Authenticated Dashboard Routes ---
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('/dashboard/import', [DashboardController::class, 'import'])->name('dashboard.import');
-    Route::post('/dashboard/student/{student}', [DashboardController::class, 'updateStudent'])->name('student.update');
-    Route::post('/dashboard/settings', [SettingsController::class, 'update'])->name('settings.update');
-    Route::post('/dashboard/drop-students', [DashboardController::class, 'dropStudents'])->name('dashboard.drop');
+    Route::post('/dashboard/import', [DashboardController::class, 'import'])->name('dashboard.import')->middleware('can:manage-dashboard');
+    Route::post('/dashboard/student/{student}', [DashboardController::class, 'updateStudent'])->name('student.update')->middleware('can:manage-dashboard');
+    Route::post('/dashboard/settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('can:manage-dashboard');
+    Route::post('/dashboard/drop-students', [DashboardController::class, 'dropStudents'])->name('dashboard.drop')->middleware('can:manage-dashboard');
     
     // Hall Management Routes
-    Route::post('/halls', [HallController::class, 'store'])->name('halls.store');
-    Route::post('/halls/{hall}', [HallController::class, 'update'])->name('halls.update');
-    Route::post('/halls/{hall}/delete', [HallController::class, 'destroy'])->name('halls.destroy');
+    Route::post('/halls', [HallController::class, 'store'])->name('halls.store')->middleware('can:manage-dashboard');
+    Route::post('/halls/{hall}', [HallController::class, 'update'])->name('halls.update')->middleware('can:manage-dashboard');
+    Route::post('/halls/{hall}/delete', [HallController::class, 'destroy'])->name('halls.destroy')->middleware('can:manage-dashboard');
 
     // Prizes Route
     Route::get('/prizes', [DashboardController::class, 'prizes'])->name('prizes');
