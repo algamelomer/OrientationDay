@@ -125,180 +125,171 @@
     {{-- Confetti library for the celebration --}}
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // --- DOM Elements ---
-            const hallSelector = document.getElementById('hall-selector');
-            const drawButton = document.getElementById('draw-button');
-            const drawAgainButton = document.getElementById('draw-again-button');
+    {{-- Confetti library for the celebration --}}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-            const setupArea = document.getElementById('setup-area');
-            const drawingArea = document.getElementById('drawing-area');
-            const resultArea = document.getElementById('result-area');
-            const errorArea = document.getElementById('error-area');
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // --- DOM Elements ---
+    const hallSelector = document.getElementById('hall-selector');
+    const drawButton = document.getElementById('draw-button');
+    const drawAgainButton = document.getElementById('draw-again-button');
+    
+    const setupArea = document.getElementById('setup-area');
+    const drawingArea = document.getElementById('drawing-area');
+    const resultArea = document.getElementById('result-area');
+    const errorArea = document.getElementById('error-area');
+    
+    const namesRoulette = document.getElementById('names-roulette');
+    const winnerNameEl = document.getElementById('winner-name');
+    const winnerNidEl = document.getElementById('winner-nid');
+    const errorMessageEl = document.getElementById('error-message');
+    
+    const prizeLeft = document.getElementById('prize-left');
+    const prizeRight = document.getElementById('prize-right');
 
-            const namesRoulette = document.getElementById('names-roulette');
-            const winnerNameEl = document.getElementById('winner-name');
-            const winnerNidEl = document.getElementById('winner-nid');
-            const errorMessageEl = document.getElementById('error-message');
+    // --- Audio Effects ---
+    // A looping sound for the name roulette
+    const scrollingSound = new Audio('/soundeffect/drum_troll.m4a');
+    scrollingSound.loop = true;
 
-            const prizeLeft = document.getElementById('prize-left');
-            const prizeRight = document.getElementById('prize-right');
+    // A sound for the winner reveal
+    const winnerSound = new Audio('/soundeffect/tada.m4a');
 
-            // --- Sample names for animation ---
-            const sampleNames = ["أحمد علي", "فاطمة محمد", "يوسف خالد", "مريم حسين", "عبدالله سعيد", "نور مصطفى",
-                "عمر جمال", "سارة إبراهيم", "خالد وليد", "هنا طارق"
-            ];
+    // --- Sample names for animation ---
+    const sampleNames = ["أحمد علي", "فاطمة محمد", "يوسف خالد", "مريم حسين", "عبدالله سعيد", "نور مصطفى", "عمر جمال", "سارة إبراهيم", "خالد وليد", "هنا طارق"];
 
-            // --- Event Listeners ---
-            hallSelector.addEventListener('change', () => {
-                drawButton.disabled = !hallSelector.value;
-            });
+    // --- Event Listeners ---
+    hallSelector.addEventListener('change', () => {
+        drawButton.disabled = !hallSelector.value;
+    });
 
-            drawButton.addEventListener('click', startDraw);
-            drawAgainButton.addEventListener('click', resetDraw);
+    drawButton.addEventListener('click', startDraw);
+    drawAgainButton.addEventListener('click', resetDraw);
 
-            // --- Functions ---
-            function startDraw() {
-                const hallName = hallSelector.value;
-                if (!hallName) return;
+    // --- Functions ---
+    function startDraw() {
+        const hallName = hallSelector.value;
+        if (!hallName) return;
 
-                // 1. Transition UI to drawing state
-                setupArea.classList.add('hidden');
-                resultArea.classList.add('hidden');
-                errorArea.classList.add('hidden');
-                drawingArea.classList.remove('hidden');
+        // 1. Transition UI to drawing state
+        setupArea.classList.add('hidden');
+        resultArea.classList.add('hidden');
+        errorArea.classList.add('hidden');
+        drawingArea.classList.remove('hidden');
 
-                // 2. Start the 5-second name roulette animation
-                let duration = 5000;
-                let startTime = Date.now();
+        // 2. Start the scrolling sound 🔊
+        scrollingSound.play();
 
-                // This is the recursive function for the animation
-                function roulette() {
-                    const elapsed = Date.now() - startTime;
-
-                    // Continue the animation as long as we are within the 5-second duration
-                    if (elapsed < duration) {
-                        // Pick a random name and display it
-                        const randomIndex = Math.floor(Math.random() * sampleNames.length);
-                        namesRoulette.textContent = sampleNames[randomIndex];
-
-                        // **CHANGE 1: Increased blur and kept it constant**
-                        // The names are now much blurrier and stay blurry for the whole animation.
-                        namesRoulette.style.filter = 'blur(8px)';
-
-                        // Gradually slow down the name cycling speed
-                        let speed = 50; // Initial fast speed
-                        if (elapsed > duration * 0.6) speed = 150; // Slow down
-                        if (elapsed > duration * 0.85) speed = 350; // Slow down more
-
-                        // Call the next frame of the animation
-                        setTimeout(roulette, speed);
-                    } else {
-                        // **CHANGE 2: Clean hand-off to fetch the winner**
-                        // Once the 5 seconds are up, the animation stops and we immediately
-                        // call the function to get the real winner. This fixes the bug.
-                        fetchWinner(hallName);
-                    }
-                }
-
-                roulette(); // Start the animation cycle
+        // 3. Start the 5-second name roulette animation
+        let duration = 5000;
+        let startTime = Date.now();
+        
+        function roulette() {
+            const elapsed = Date.now() - startTime;
+            
+            if (elapsed < duration) {
+                const randomIndex = Math.floor(Math.random() * sampleNames.length);
+                namesRoulette.textContent = sampleNames[randomIndex];
+                namesRoulette.style.filter = 'blur(8px)';
+                
+                let speed = 50;
+                if (elapsed > duration * 0.6) speed = 150;
+                if (elapsed > duration * 0.85) speed = 350;
+                
+                setTimeout(roulette, speed);
+            } else {
+                fetchWinner(hallName);
             }
+        }
+        
+        roulette();
+    }
 
-            function fetchWinner(hallName) {
-                // Show a clear placeholder for suspense AFTER the blurry animation is done.
-                namesRoulette.textContent = '...';
-                namesRoulette.style.filter = 'blur(0px)';
+    function fetchWinner(hallName) {
+        namesRoulette.textContent = '...';
+        namesRoulette.style.filter = 'blur(0px)';
 
-                fetch('{{ route('prizes.draw') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                'content')
-                        },
-                        body: JSON.stringify({
-                            hall_name: hallName
-                        })
-                    })
-                    .then(response => {
-                        if (!response.ok) return response.json().then(err => {
-                            throw err;
-                        });
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.error) {
-                            showError(data.error);
-                        } else {
-                            // Wait a moment before revealing the winner for dramatic effect
-                            setTimeout(() => showWinner(data), 500);
-                        }
-                    })
-                    .catch(error => {
-                        showError(error.error || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
-                    });
+        fetch('{{ route('prizes.draw') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ hall_name: hallName })
+        })
+        .then(response => {
+            if (!response.ok) return response.json().then(err => { throw err; });
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                showError(data.error);
+            } else {
+                // Stop the scrolling sound right before the reveal
+                scrollingSound.pause();
+                scrollingSound.currentTime = 0; // Reset for next time
+
+                // Play the winner sound  fanfare  fanfare
+                winnerSound.play();
+
+                setTimeout(() => showWinner(data), 200); // Shortened delay to sync with sound
             }
-
-            function showWinner(winner) {
-                drawingArea.classList.add('hidden');
-
-                // Populate winner data
-                winnerNameEl.textContent = winner.name;
-                winnerNidEl.textContent = 'الرقم القومي: ' + winner.national_id;
-
-                resultArea.classList.remove('hidden');
-
-                // Trigger celebration animations!
-                celebrate();
-            }
-
-            function showError(message) {
-                drawingArea.classList.add('hidden');
-                errorMessageEl.textContent = message;
-                errorArea.classList.remove('hidden');
-                drawAgainButton.classList.remove('hidden');
-                resultArea.appendChild(drawAgainButton);
-            }
-
-            function celebrate() {
-                // Confetti from two sides
-                confetti({
-                    particleCount: 150,
-                    angle: 60,
-                    spread: 55,
-                    origin: {
-                        x: 0
-                    }
-                });
-                confetti({
-                    particleCount: 150,
-                    angle: 120,
-                    spread: 55,
-                    origin: {
-                        x: 1
-                    }
-                });
-
-                // Slide in prizes
-                setTimeout(() => {
-                    prizeLeft.classList.remove('opacity-0', '-translate-x-full');
-                    prizeRight.classList.remove('opacity-0', 'translate-x-full');
-                }, 300);
-            }
-
-            function resetDraw() {
-                // Hide results and prizes
-                resultArea.classList.add('hidden');
-                errorArea.classList.add('hidden');
-                prizeLeft.classList.add('opacity-0', '-translate-x-full');
-                prizeRight.classList.add('opacity-0', 'translate-x-full');
-
-                // Reset the form
-                hallSelector.value = '';
-                drawButton.disabled = true;
-                setupArea.classList.remove('hidden');
-            }
+        })
+        .catch(error => {
+            showError(error.error || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
         });
-    </script>
+    }
+
+    function showWinner(winner) {
+        drawingArea.classList.add('hidden');
+        
+        winnerNameEl.textContent = winner.name;
+        winnerNidEl.textContent = 'الرقم القومي: ' + winner.national_id;
+        
+        resultArea.classList.remove('hidden');
+
+        celebrate();
+    }
+    
+    function showError(message) {
+        // Stop the sound in case of an error
+        scrollingSound.pause();
+        scrollingSound.currentTime = 0;
+
+        drawingArea.classList.add('hidden');
+        errorMessageEl.textContent = message;
+        errorArea.classList.remove('hidden');
+        drawAgainButton.classList.remove('hidden'); 
+        resultArea.appendChild(drawAgainButton);
+    }
+    
+    function celebrate() {
+        confetti({ particleCount: 150, angle: 60, spread: 55, origin: { x: 0 } });
+        confetti({ particleCount: 150, angle: 120, spread: 55, origin: { x: 1 } });
+        
+        setTimeout(() => {
+            prizeLeft.classList.remove('opacity-0', '-translate-x-full');
+            prizeRight.classList.remove('opacity-0', 'translate-x-full');
+        }, 300);
+    }
+
+    function resetDraw() {
+        // Stop any playing sounds on reset
+        scrollingSound.pause();
+        scrollingSound.currentTime = 0;
+        winnerSound.pause();
+        winnerSound.currentTime = 0;
+
+        resultArea.classList.add('hidden');
+        errorArea.classList.add('hidden');
+        prizeLeft.classList.add('opacity-0', '-translate-x-full');
+        prizeRight.classList.add('opacity-0', 'translate-x-full');
+        
+        hallSelector.value = '';
+        drawButton.disabled = true;
+        setupArea.classList.remove('hidden');
+    }
+});
+</script>
 @endsection
