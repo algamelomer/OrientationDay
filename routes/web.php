@@ -32,5 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/halls', [HallController::class, 'store'])->name('halls.store');
     Route::post('/halls/{hall}', [HallController::class, 'update'])->name('halls.update');
     Route::post('/halls/{hall}/delete', [HallController::class, 'destroy'])->name('halls.destroy');
+
+    // Prizes Route
+    Route::get('/prizes', [DashboardController::class, 'prizes'])->name('prizes');
+    Route::post('/prizes/draw', [DashboardController::class, 'draw'])->name('prizes.draw');
 });
 

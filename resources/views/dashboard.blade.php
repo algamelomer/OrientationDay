@@ -1,12 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-gray-100 min-h-screen">
+<div class="bg-gray-100 min-h-screen py-4">
     <header class="bg-white shadow-md">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold text-gray-800">لوحة التحكم</h1>
             <div>
                 <a href="{{ route('welcome') }}" class="text-gray-600 hover:text-indigo-600 mx-2">الصفحة الرئيسية</a>
+                <a href="{{ route('prizes') }}" class="text-gray-600 hover:text-indigo-600 mx-2">سحب الجوائز</a>
                 <a href="{{ route('logout') }}"
                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                    class="text-gray-600 hover:text-indigo-600 mx-2">
@@ -109,48 +110,9 @@
                     </form>
                 </div>
 
-                <!-- Students Table -->
+                <!-- Student Search -->
                 <div class="bg-white rounded-lg shadow-xl p-6">
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-700 border-b pb-3">الطلاب المسجلون</h2>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right">
-                            <thead>
-                                <tr class="border-b">
-                                    <th class="py-2 px-4">الاسم</th>
-                                    <th class="py-2 px-4">الرقم القومي</th>
-                                    <th class="py-2 px-4">المكان المخصص</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($students as $student)
-                                    <tr class="border-b hover:bg-gray-50">
-                                        <td class="py-2 px-4">{{ $student->name }}</td>
-                                        <td class="py-2 px-4">{{ $student->national_id }}</td>
-                                        <td class="py-2 px-4">
-                                            <form action="{{ route('student.update', $student) }}" method="POST">
-                                                @csrf
-                                                <div class="flex items-center">
-                                                    <select name="place" class="block w-full rounded-md border-gray-300 shadow-sm text-sm" onchange="this.form.submit()">
-                                                        <option value="none" @if(!$student->place) selected @endif>-- بدون تسكين --</option>
-                                                        @foreach($halls as $hall)
-                                                            <option value="{{ $hall->name }}" @if($student->place == $hall->name) selected @endif>{{ $hall->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="text-center py-4 text-gray-500">لا يوجد طلاب مسجلون حالياً.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        {{ $students->links() }}
-                    </div>
+                    @livewire('student-search')
                 </div>
             </div>
 

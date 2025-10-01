@@ -23,7 +23,6 @@ class DashboardController extends Controller
         ];
 
         $settings = Setting::pluck('value', 'key')->all();
-        $students = Student::paginate(10);
         $halls = Hall::all();
 
         // Hall specific stats
@@ -32,7 +31,7 @@ class DashboardController extends Controller
             $hallStats[$hall->name] = Student::where('place', $hall->name)->count();
         }
 
-        return view('dashboard', compact('stats', 'settings', 'students', 'halls', 'hallStats'));
+        return view('dashboard', compact('stats', 'settings', 'halls', 'hallStats'));
     }
 
     /**
@@ -71,6 +70,36 @@ class DashboardController extends Controller
     {
         Student::truncate();
         return redirect()->route('dashboard')->with('success', 'تم حذف جميع بيانات الطلاب بنجاح.');
+    }
+
+    /**
+     * Show the prizes page.
+     */
+    public function prizes()
+    {
+        $halls = Hall::all();
+        return view('prizes', compact('halls'));
+    }
+
+    /**
+     * Draw a random student from a hall.
+     */
+    public function draw(Request $request)
+    {
+        $request->validate([
+            'hall_name' => 'required|string|exists:halls,name',
+        ]);
+
+        $student = Student::where('place', $request->hall_name)->inRandomOrder()->first();
+
+        if ($student) {
+            return response()->json([
+                'name' => $student->name,
+                'national_id' => $student->national_id,
+            ]);
+        }
+
+        return response()->json(['error' => 'No students found in this hall.'], 404);
     }
 }
 
