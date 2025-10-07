@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function () {
         drawingArea.classList.add('hidden');
         
         winnerNameEl.textContent = winner.name;
-        winnerNidEl.textContent = 'الرقم القومي: ' + winner.national_id;
+        winnerNidEl.textContent = 'الوصف: ' + winner.national_id;
         
         resultArea.classList.remove('hidden');
 
